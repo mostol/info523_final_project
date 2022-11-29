@@ -1,0 +1,7 @@
+Let's normalize a dataset! We'll use the `billboard` dataset, as used in 
+[Hadley Whickham's 2014 paper, *Tidy data*](https://vita.had.co.nz/papers/tidy-data.html) (and made available in the [associated
+GitHub repository](https://github.com/hadley/tidy-data/blob/master/data/billboard.csv))
+
+```{r}
+df <- read.csv("billboard.csv", stringsAsFactors = FALSE)
+```
