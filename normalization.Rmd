@@ -145,10 +145,11 @@ track—so it should also be moved to the other table.
 id_time_genre_peaks <- unique(billboard[c("track_id","time", "genre","date.peaked")])
 
 # Attach them to the `track_ids` dataframe
-track_ids <- left_join(track_ids, id_time_genre_, by = "track_id")
+track_ids <- left_join(track_ids, id_time_genre_peaks, by = "track_id")
 
 # Remove the transferred columns
 billboard$time <- NULL
+billboard$date.peaked <- NULL
 billboard$genre <- NULL
 
 track_ids
