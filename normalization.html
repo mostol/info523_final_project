@@ -371,7 +371,57 @@ library(dplyr)</code></pre>
 ##     intersect, setdiff, setequal, union</code></pre>
 <pre class="r"><code># We&#39;ll load the dataframe as `billboard_orig`, and modify it as `billboard`
 # as we go.
-billboard_orig &lt;- read.csv(&quot;billboard.csv&quot;, stringsAsFactors = FALSE)</code></pre>
+billboard_orig &lt;- read.csv(&quot;billboard.csv&quot;, stringsAsFactors = FALSE)
+
+head(billboard_orig, 3)</code></pre>
+<pre><code>##   year artist.inverted                    track time genre date.entered
+## 1 2000 Destiny&#39;s Child Independent Women Part I 3:38  Rock   2000-09-23
+## 2 2000         Santana             Maria, Maria 4:18  Rock   2000-02-12
+## 3 2000   Savage Garden       I Knew I Loved You 4:07  Rock   1999-10-23
+##   date.peaked x1st.week x2nd.week x3rd.week x4th.week x5th.week x6th.week
+## 1  2000-11-18        78        63        49        33        23        15
+## 2  2000-04-08        15         8         6         5         2         3
+## 3  2000-01-29        71        48        43        31        20        13
+##   x7th.week x8th.week x9th.week x10th.week x11th.week x12th.week x13th.week
+## 1         7         5         1          1          1          1          1
+## 2         2         2         1          1          1          1          1
+## 3         7         6         4          4          4          6          4
+##   x14th.week x15th.week x16th.week x17th.week x18th.week x19th.week x20th.week
+## 1          1          1          1          1          1          1          2
+## 2          1          1          1          1          1          8         15
+## 3          2          1          1          1          2          1          2
+##   x21st.week x22nd.week x23rd.week x24th.week x25th.week x26th.week x27th.week
+## 1          3          7         10         12         15         22         29
+## 2         19         21         26         36         48         47         NA
+## 3          4          8          8         12         14         17         21
+##   x28th.week x29th.week x30th.week x31st.week x32nd.week x33rd.week x34th.week
+## 1         31         NA         NA         NA         NA         NA         NA
+## 2         NA         NA         NA         NA         NA         NA         NA
+## 3         24         30         34         37         46         47         NA
+##   x35th.week x36th.week x37th.week x38th.week x39th.week x40th.week x41st.week
+## 1         NA         NA         NA         NA         NA         NA         NA
+## 2         NA         NA         NA         NA         NA         NA         NA
+## 3         NA         NA         NA         NA         NA         NA         NA
+##   x42nd.week x43rd.week x44th.week x45th.week x46th.week x47th.week x48th.week
+## 1         NA         NA         NA         NA         NA         NA         NA
+## 2         NA         NA         NA         NA         NA         NA         NA
+## 3         NA         NA         NA         NA         NA         NA         NA
+##   x49th.week x50th.week x51st.week x52nd.week x53rd.week x54th.week x55th.week
+## 1         NA         NA         NA         NA         NA         NA         NA
+## 2         NA         NA         NA         NA         NA         NA         NA
+## 3         NA         NA         NA         NA         NA         NA         NA
+##   x56th.week x57th.week x58th.week x59th.week x60th.week x61st.week x62nd.week
+## 1         NA         NA         NA         NA         NA         NA         NA
+## 2         NA         NA         NA         NA         NA         NA         NA
+## 3         NA         NA         NA         NA         NA         NA         NA
+##   x63rd.week x64th.week x65th.week x66th.week x67th.week x68th.week x69th.week
+## 1         NA         NA         NA         NA         NA         NA         NA
+## 2         NA         NA         NA         NA         NA         NA         NA
+## 3         NA         NA         NA         NA         NA         NA         NA
+##   x70th.week x71st.week x72nd.week x73rd.week x74th.week x75th.week x76th.week
+## 1         NA         NA         NA         NA         NA         NA         NA
+## 2         NA         NA         NA         NA         NA         NA         NA
+## 3         NA         NA         NA         NA         NA         NA         NA</code></pre>
 <p>This dataset gives the history of the Billboard top hits for the year
 2000. It’s initial structure has one row for every song, and
 <strong>78</strong> additional columns that track its chart performance,
@@ -407,7 +457,23 @@ billboard &lt;- billboard_orig %&gt;%
     week = as.integer(gsub(&quot;[a-z]|\\.&quot;, &quot;&quot;, week)),
     date = as.Date(date.entered) + 7 * (week - 1),
     date.entered = NULL # Remove `date.entered`
-  )</code></pre>
+  )
+
+billboard</code></pre>
+<pre><code>## # A tibble: 5,307 × 9
+##     year artist.inverted track        time  genre date.…¹  week  rank date      
+##    &lt;int&gt; &lt;chr&gt;           &lt;chr&gt;        &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;   &lt;int&gt; &lt;int&gt; &lt;date&gt;    
+##  1  2000 Destiny&#39;s Child Independent… 3:38  Rock  2000-1…     1    78 2000-09-23
+##  2  2000 Destiny&#39;s Child Independent… 3:38  Rock  2000-1…     2    63 2000-09-30
+##  3  2000 Destiny&#39;s Child Independent… 3:38  Rock  2000-1…     3    49 2000-10-07
+##  4  2000 Destiny&#39;s Child Independent… 3:38  Rock  2000-1…     4    33 2000-10-14
+##  5  2000 Destiny&#39;s Child Independent… 3:38  Rock  2000-1…     5    23 2000-10-21
+##  6  2000 Destiny&#39;s Child Independent… 3:38  Rock  2000-1…     6    15 2000-10-28
+##  7  2000 Destiny&#39;s Child Independent… 3:38  Rock  2000-1…     7     7 2000-11-04
+##  8  2000 Destiny&#39;s Child Independent… 3:38  Rock  2000-1…     8     5 2000-11-11
+##  9  2000 Destiny&#39;s Child Independent… 3:38  Rock  2000-1…     9     1 2000-11-18
+## 10  2000 Destiny&#39;s Child Independent… 3:38  Rock  2000-1…    10     1 2000-11-25
+## # … with 5,297 more rows, and abbreviated variable name ¹​date.peaked</code></pre>
 <p>Now that each row is a single observation, we can move on to further
 normalization.</p>
 </div>
@@ -441,7 +507,38 @@ billboard &lt;- left_join(track_ids,billboard, by = c(&quot;artist.inverted&quot
 
 # Remove now-redundant data
 billboard$track &lt;- NULL # Remove track title from `billboard`
-billboard$artist.inverted &lt;- NULL # Remove artist from `dataframe`billboard`</code></pre>
+billboard$artist.inverted &lt;- NULL # Remove artist from `dataframe`billboard`
+
+track_ids</code></pre>
+<pre><code>## # A tibble: 317 × 3
+##    artist.inverted     track                                 track_id
+##    &lt;chr&gt;               &lt;chr&gt;                                    &lt;int&gt;
+##  1 Destiny&#39;s Child     Independent Women Part I                     1
+##  2 Santana             Maria, Maria                                 2
+##  3 Savage Garden       I Knew I Loved You                           3
+##  4 Madonna             Music                                        4
+##  5 Aguilera, Christina Come On Over Baby (All I Want Is You)        5
+##  6 Janet               Doesn&#39;t Really Matter                        6
+##  7 Destiny&#39;s Child     Say My Name                                  7
+##  8 Iglesias, Enrique   Be With You                                  8
+##  9 Sisqo               Incomplete                                   9
+## 10 Lonestar            Amazed                                      10
+## # … with 307 more rows</code></pre>
+<pre class="r"><code>billboard</code></pre>
+<pre><code>## # A tibble: 5,307 × 8
+##    track_id  year time  genre date.peaked  week  rank date      
+##       &lt;int&gt; &lt;int&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;       &lt;int&gt; &lt;int&gt; &lt;date&gt;    
+##  1        1  2000 3:38  Rock  2000-11-18      1    78 2000-09-23
+##  2        1  2000 3:38  Rock  2000-11-18      2    63 2000-09-30
+##  3        1  2000 3:38  Rock  2000-11-18      3    49 2000-10-07
+##  4        1  2000 3:38  Rock  2000-11-18      4    33 2000-10-14
+##  5        1  2000 3:38  Rock  2000-11-18      5    23 2000-10-21
+##  6        1  2000 3:38  Rock  2000-11-18      6    15 2000-10-28
+##  7        1  2000 3:38  Rock  2000-11-18      7     7 2000-11-04
+##  8        1  2000 3:38  Rock  2000-11-18      8     5 2000-11-11
+##  9        1  2000 3:38  Rock  2000-11-18      9     1 2000-11-18
+## 10        1  2000 3:38  Rock  2000-11-18     10     1 2000-11-25
+## # … with 5,297 more rows</code></pre>
 <p>This isn’t strictly necessary to fulfill first normal form, but it’ll
 help us later on. 1NF? Done NF! ✅</p>
 </div>
@@ -482,7 +579,38 @@ track_ids &lt;- left_join(track_ids, id_time_genre, by = &quot;track_id&quot;)
 
 # Remove the transferred columns
 billboard$time &lt;- NULL
-billboard$genre &lt;- NULL</code></pre>
+billboard$genre &lt;- NULL
+
+track_ids</code></pre>
+<pre><code>## # A tibble: 317 × 5
+##    artist.inverted     track                                 track…¹ time  genre
+##    &lt;chr&gt;               &lt;chr&gt;                                   &lt;int&gt; &lt;chr&gt; &lt;chr&gt;
+##  1 Destiny&#39;s Child     Independent Women Part I                    1 3:38  Rock 
+##  2 Santana             Maria, Maria                                2 4:18  Rock 
+##  3 Savage Garden       I Knew I Loved You                          3 4:07  Rock 
+##  4 Madonna             Music                                       4 3:45  Rock 
+##  5 Aguilera, Christina Come On Over Baby (All I Want Is You)       5 3:38  Rock 
+##  6 Janet               Doesn&#39;t Really Matter                       6 4:17  Rock 
+##  7 Destiny&#39;s Child     Say My Name                                 7 4:31  Rock 
+##  8 Iglesias, Enrique   Be With You                                 8 3:36  Latin
+##  9 Sisqo               Incomplete                                  9 3:52  Rock 
+## 10 Lonestar            Amazed                                     10 4:25  Coun…
+## # … with 307 more rows, and abbreviated variable name ¹​track_id</code></pre>
+<pre class="r"><code>billboard</code></pre>
+<pre><code>## # A tibble: 5,307 × 6
+##    track_id  year date.peaked  week  rank date      
+##       &lt;int&gt; &lt;int&gt; &lt;chr&gt;       &lt;int&gt; &lt;int&gt; &lt;date&gt;    
+##  1        1  2000 2000-11-18      1    78 2000-09-23
+##  2        1  2000 2000-11-18      2    63 2000-09-30
+##  3        1  2000 2000-11-18      3    49 2000-10-07
+##  4        1  2000 2000-11-18      4    33 2000-10-14
+##  5        1  2000 2000-11-18      5    23 2000-10-21
+##  6        1  2000 2000-11-18      6    15 2000-10-28
+##  7        1  2000 2000-11-18      7     7 2000-11-04
+##  8        1  2000 2000-11-18      8     5 2000-11-11
+##  9        1  2000 2000-11-18      9     1 2000-11-18
+## 10        1  2000 2000-11-18     10     1 2000-11-25
+## # … with 5,297 more rows</code></pre>
 <p>This is also officially “tidy”, under the <a href="https://tidyr.tidyverse.org/articles/tidy-data.html#tidy-data">tidyverse
 definition</a>. ✅</p>
 </div>
@@ -510,7 +638,38 @@ id_peaks &lt;- unique(billboard[c(&quot;track_id&quot;,&quot;date.peaked&quot;)]
 track_ids &lt;- left_join(track_ids, id_peaks, by = &quot;track_id&quot;)
 
 # Remove the transferred columns
-billboard$date.peaked &lt;- NULL</code></pre>
+billboard$date.peaked &lt;- NULL
+
+track_ids</code></pre>
+<pre><code>## # A tibble: 317 × 6
+##    artist.inverted     track                         track…¹ time  genre date.…²
+##    &lt;chr&gt;               &lt;chr&gt;                           &lt;int&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;  
+##  1 Destiny&#39;s Child     Independent Women Part I            1 3:38  Rock  2000-1…
+##  2 Santana             Maria, Maria                        2 4:18  Rock  2000-0…
+##  3 Savage Garden       I Knew I Loved You                  3 4:07  Rock  2000-0…
+##  4 Madonna             Music                               4 3:45  Rock  2000-0…
+##  5 Aguilera, Christina Come On Over Baby (All I Wan…       5 3:38  Rock  2000-1…
+##  6 Janet               Doesn&#39;t Really Matter               6 4:17  Rock  2000-0…
+##  7 Destiny&#39;s Child     Say My Name                         7 4:31  Rock  2000-0…
+##  8 Iglesias, Enrique   Be With You                         8 3:36  Latin 2000-0…
+##  9 Sisqo               Incomplete                          9 3:52  Rock  2000-0…
+## 10 Lonestar            Amazed                             10 4:25  Coun… 2000-0…
+## # … with 307 more rows, and abbreviated variable names ¹​track_id, ²​date.peaked</code></pre>
+<pre class="r"><code>billboard</code></pre>
+<pre><code>## # A tibble: 5,307 × 5
+##    track_id  year  week  rank date      
+##       &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;date&gt;    
+##  1        1  2000     1    78 2000-09-23
+##  2        1  2000     2    63 2000-09-30
+##  3        1  2000     3    49 2000-10-07
+##  4        1  2000     4    33 2000-10-14
+##  5        1  2000     5    23 2000-10-21
+##  6        1  2000     6    15 2000-10-28
+##  7        1  2000     7     7 2000-11-04
+##  8        1  2000     8     5 2000-11-11
+##  9        1  2000     9     1 2000-11-18
+## 10        1  2000    10     1 2000-11-25
+## # … with 5,297 more rows</code></pre>
 <p>Now our redundancy has been removed, and we’re in 4NF—<em>beyond</em>
 “tidy”! ✅</p>
 </div>

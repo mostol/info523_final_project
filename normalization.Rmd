@@ -12,6 +12,8 @@ library(dplyr)
 # We'll load the dataframe as `billboard_orig`, and modify it as `billboard`
 # as we go.
 billboard_orig <- read.csv("billboard.csv", stringsAsFactors = FALSE)
+
+head(billboard_orig, 3)
 ```
 
 This dataset gives the history of the Billboard top hits for the year 2000. It's
@@ -50,6 +52,8 @@ billboard <- billboard_orig %>%
     date = as.Date(date.entered) + 7 * (week - 1),
     date.entered = NULL # Remove `date.entered`
   )
+
+billboard
 ```
 
 Now that each row is a single observation, we can move on to further normalization.
@@ -85,6 +89,9 @@ billboard <- left_join(track_ids,billboard, by = c("artist.inverted", "track"))
 # Remove now-redundant data
 billboard$track <- NULL # Remove track title from `billboard`
 billboard$artist.inverted <- NULL # Remove artist from `dataframe`billboard`
+
+track_ids
+billboard
 ```
 
 This isn't strictly necessary to fulfill first normal form, but it'll help us later on. 
@@ -125,6 +132,9 @@ track_ids <- left_join(track_ids, id_time_genre, by = "track_id")
 # Remove the transferred columns
 billboard$time <- NULL
 billboard$genre <- NULL
+
+track_ids
+billboard
 ```
 
 This is also officially "tidy", under the [tidyverse
@@ -156,6 +166,9 @@ track_ids <- left_join(track_ids, id_peaks, by = "track_id")
 
 # Remove the transferred columns
 billboard$date.peaked <- NULL
+
+track_ids
+billboard
 ```
 
 Now our redundancy has been removed, and we're in 4NF—*beyond* "tidy"! ✅
