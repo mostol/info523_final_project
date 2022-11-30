@@ -118,24 +118,7 @@ on the book title—it depends on the author, which depends on the title. To res
 this, author birth date would need to be moved to an author info table, where the 
 authors are the keys. Another way to think about this is a separation of interests or subjects.
 
-We can see in our current table that subjects aren't quite separate: `billboard`
-contains information on chart positions, but that's not intrinsically tied to a 
-song's `time` or `genre`—so one step we can take is moving those to the `track_id`
-dataframe.
-```{r}
-# Gather up tracks' lengths and genres
-id_time_genre <- unique(billboard[c("track_id","time", "genre")])
-
-# Attach them to the `track_ids` dataframe
-track_ids <- left_join(track_ids, id_time_genre, by = "track_id")
-
-# Remove the transferred columns
-billboard$time <- NULL
-billboard$genre <- NULL
-
-track_ids
-billboard
-```
+Our table doesn't have any of these indirect relationships, so we're good here!
 
 This is also officially "tidy", under the [tidyverse
 definition](https://tidyr.tidyverse.org/articles/tidy-data.html#tidy-data). ✅
@@ -159,13 +142,14 @@ track—so it should also be moved to the other table.
 
 ```{r}
 # Gather up `track_id`s and their `date_peaked` info
-id_peaks <- unique(billboard[c("track_id","date.peaked")])
+id_time_genre_peaks <- unique(billboard[c("track_id","time", "genre","date.peaked")])
 
 # Attach them to the `track_ids` dataframe
-track_ids <- left_join(track_ids, id_peaks, by = "track_id")
+track_ids <- left_join(track_ids, id_time_genre_, by = "track_id")
 
 # Remove the transferred columns
-billboard$date.peaked <- NULL
+billboard$time <- NULL
+billboard$genre <- NULL
 
 track_ids
 billboard
