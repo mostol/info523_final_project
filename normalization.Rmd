@@ -1,7 +1,161 @@
-Let's normalize a dataset! We'll use the `billboard` dataset, as used in 
-[Hadley Whickham's 2014 paper, *Tidy data*](https://vita.had.co.nz/papers/tidy-data.html) (and made available in the [associated
-GitHub repository](https://github.com/hadley/tidy-data/blob/master/data/billboard.csv))
+# Dataset normalization
+Let's normalize a dataset! 
+
+We'll use the `billboard` dataset, as demonstrated in [Hadley Whickham's 2014 paper, *Tidy data*](https://vita.had.co.nz/papers/tidy-data.html) (and made available in the [associated
+GitHub repository](https://github.com/hadley/tidy-data/blob/master/data/billboard.csv)).
 
 ```{r}
-df <- read.csv("billboard.csv", stringsAsFactors = FALSE)
+# Load in libraries to make normalization more convenient
+library(tidyr)
+library(dplyr)
+
+# We'll load the dataframe as `billboard_orig`, and modify it as `billboard`
+# as we go.
+billboard_orig <- read.csv("billboard.csv", stringsAsFactors = FALSE)
 ```
+
+This dataset gives the history of the Billboard top hits for the year 2000. It's
+initial structure has one row for every song, and **78** additional columns that
+track its chart performance, providing a starting date, a peak date, and 76
+weeks of chart position info. There is also data on a song's genre and duration.
+
+## Stage 0: Initial form
+
+Some datasets start out somewhat normalized. The "least normalized" kind of data
+is "unnormalized form" or **UNF**. A key characteristic of UNF data is *nesting*—
+or tables-within-tables—and the "atomic"-ness of data: each row should be a single observation.
+
+This dataset does not have any nested data on the surface. However, the fact that
+our dataset uses 72 rows to formulate chart history is, in some ways, a thin 
+veneer covering the fact that there's a data atomicity problem: the layout isn't too far
+off from us having a column of length-72 vectors, instead of 72 columns for the weekly ranking data.
+
+Instead of 76 rows of data, we can "melt" or "pivot" the data to make the relationships 
+atomic (and "mutate" some of the results for clarity):
+
+```{r}
+
+# "Pivot" the table to be "long", having lots of observations
+# instead of having lots of columns. (Method via https://tidyr.tidyverse.org/articles/tidy-data.html)
+billboard <- billboard_orig %>% 
+  pivot_longer(
+    x1st.week:x76th.week, 
+    names_to = "week", 
+    values_to = "rank", 
+    values_drop_na = TRUE
+  ) %>%
+  # We can also "mutate" it to clean up the entries
+  mutate(
+    week = as.integer(gsub("[a-z]|\\.", "", week)),
+    date = as.Date(date.entered) + 7 * (week - 1),
+    date.entered = NULL # Remove `date.entered`
+  )
+```
+
+Now that each row is a single observation, we can move on to further normalization.
+
+## Stage 1: First normal form
+
+First normal form (also abbreviated **1NF**) requires:
+
+1.   No nested data (done now, thanks to our above modification! ✅)
+2.   Primary keys exist to uniquely identify rows. Technically, a "primary key" can consist of
+multiple columns. (This is called a "composite key" if it happens.) In our case, 
+we can see a good reason why this might occur: not every song title is unique! 
+One song has multiple performers.
+```{r}
+# This is using the initial `billboard_orig` df, not the long one
+duplicated_songs <- billboard_orig$track[duplicated(billboard_orig$track)]
+billboard_orig$artist.inverted[billboard_orig$track %in% duplicated_songs]
+```
+
+So the true primary key in this dataset is the artist/track combination. To make
+this more concrete, we can create a dataframe that assigns each artist/track combo to
+a unique ID number, and use that to reference the Billboard data.
+
+This can be done by creating a new table, and then adding the new IDs with a `join` operation
+
+```{r}
+track_ids <- unique(billboard[c("artist.inverted","track")])
+track_ids$track_id <- 1:length(track_ids$track)
+
+# Join the data, so IDs end up in the long table
+billboard <- left_join(track_ids,billboard, by = c("artist.inverted", "track"))
+
+# Remove now-redundant data
+billboard$track <- NULL # Remove track title from `billboard`
+billboard$artist.inverted <- NULL # Remove artist from `dataframe`billboard`
+```
+
+This isn't strictly necessary to fulfill first normal form, but it'll help us later on. 
+1NF? Done NF! ✅
+
+## Stage 2: Second normal form
+
+In addition to the requirements of 1NF, second normal form (**2NF**) requires that, if we
+*do* have a composite key, every column needs to depend on the whole key, not just
+a part of it. For example, if there were a `nationality` column in our data set, 
+that would violate 2NF—nationality only depends on the artist, and is unrelated
+to the individual song. In that case, we would need to split things up into an
+artist/nationality table.
+
+Since we've already swapped our composite key for a numeric ID key, and
+don't have any other problematic dependencies, 2NF is automatically fulfilled! 🎉✅
+
+## Stage 3: Third normal form
+
+Third normal form (**3NF**) looks at column dependencies even further—it requires that
+non-primary key columns (also called *candidate keys*) *only* depend on primary keys. For example,
+in a table with books as the primary key, the author's birth date doesn't depend
+on the book title—it depends on the author, which depends on the title. To resolve 
+this, author birth date would need to be moved to an author info table, where the 
+authors are the keys. Another way to think about this is a separation of interests or subjects.
+
+We can see in our current table that subjects aren't quite separate: `billboard`
+contains information on chart positions, but that's not intrinsically tied to a 
+song's `time` or `genre`—so one step we can take is moving those to the `track_id`
+dataframe.
+```{r}
+# Gather up tracks' lengths and genres
+id_time_genre <- unique(billboard[c("track_id","time", "genre")])
+
+# Attach them to the `track_ids` dataframe
+track_ids <- left_join(track_ids, id_time_genre, by = "track_id")
+
+# Remove the transferred columns
+billboard$time <- NULL
+billboard$genre <- NULL
+```
+
+This is also officially "tidy", under the [tidyverse
+definition](https://tidyr.tidyverse.org/articles/tidy-data.html#tidy-data). ✅
+
+## Stage 4: Beyond tidy (fourth normal form+)
+
+While "tidy" data is closely related to noromal forms and fulfills many of the
+requirements of the first 3 forms, there is even more normalization that can be done.
+There are currently 6 forms that have been defined, but we'll stop at 4 for now. 
+
+Fourth normal form (**4NF**) requires that there are no "non-trivial multivalued
+dependencies" in a table—in other words, if a column depends on only one key,
+it should live in a table where that key is the primary key, not in a table with
+a compound key.
+
+A telltale sign of a 4NF violation is redundant or duplicate data. Looking at our
+dataframe, there is one column where this is still the case: `date.peaked`. This is
+because, in the `billboard` table, each row is identified uniquely by a `track_id`
+and a `week` (or `date`), but `date.peaked` actually really only depends on the
+track—so it should also be moved to the other table. 
+
+```{r}
+# Gather up `track_id`s and their `date_peaked` info
+id_peaks <- unique(billboard[c("track_id","date.peaked")])
+
+# Attach them to the `track_ids` dataframe
+track_ids <- left_join(track_ids, id_peaks, by = "track_id")
+
+# Remove the transferred columns
+billboard$date.peaked <- NULL
+```
+
+Now our redundancy has been removed, and we're in 4NF—*beyond* "tidy"! ✅
